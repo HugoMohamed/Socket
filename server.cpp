@@ -25,12 +25,11 @@ using namespace std;
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
 
+
 int main(void)
 {
 	WSADATA wsaData;  //  WSA stands for "Windows Socket API"
 	int iResult;
-	fstream image;
-	image.open("./image.png", fstream::binary);
 
 	SOCKET ListenSocket = INVALID_SOCKET;
 	SOCKET ClientSocket = INVALID_SOCKET;
@@ -39,7 +38,7 @@ int main(void)
 	struct addrinfo hints;
 
 	int iSendResult;
-	char recvbuf[DEFAULT_BUFLEN];
+	char recvbuf[10000];
 	int recvbuflen = DEFAULT_BUFLEN;
 
 	// Initialize Winsock
@@ -138,12 +137,30 @@ int main(void)
 			}
 		}
 
-		if (cumul > 0) {
+		if (cumul > 0)
+		{
 			cout << "Bytes received: " << cumul << endl;
+			ifstream image("image.png", ifstream::binary);
+			int i = 0;
+			int length;
+			char * sendbuf;
 
+			printf("HELLO");
+			// length of img
+			image.seekg(0, image.end);
+			length = image.tellg();
+			image.seekg(0, image.beg);
+
+			sendbuf = new char[length];
+			char c;
+			for (int i = 0; i < length; i++)
+			{
+				image.get(c);
+				sendbuf[i] = c;
+			}
 			// Echo the content of "recvbuf" back to the sender
 			// Therefore, we have to send "cumul" bytes 
-			iSendResult = send(ClientSocket, recvbuf, cumul, 0);
+			iSendResult = send(ClientSocket, sendbuf, length+1, 0);
 			if (iSendResult == SOCKET_ERROR) {
 				cout << "send failed with error: " << WSAGetLastError() << endl;
 				closesocket(ClientSocket);
@@ -151,7 +168,9 @@ int main(void)
 				return -1;
 			}
 			cout << "Bytes sent: " << iSendResult << endl;
+			cout << sendbuf << endl;
 		}
+		
 		else if (cumul == 0)
 			cout << "Connection closing..." << endl;
 		else {

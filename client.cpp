@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -31,16 +32,20 @@ int main(int argc, char **argv)
 	struct addrinfo *result = NULL,
 		*ptr = NULL,
 		hints;
-	char *sendbuf = "this is a test";
-	char recvbuf[DEFAULT_BUFLEN];
+	char *sendbuf;
+
+	char recvbuf[10000];
 	int iResult;
 	int recvbuflen = DEFAULT_BUFLEN;
+	ofstream image("receivedImage.png", fstream::binary);
 
 	// Validate the parameters
-  //  if (argc != 2) {
-		//cout << "usage: " << argv[0] <<  " server-name" << endl;
-  //      return;
-  //  }
+	if (argc != 2) {
+		cout << "usage: " << argv[0] <<  " image.png" << endl;
+        return -1;
+	}
+
+	sendbuf = argv[1];
 
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -145,6 +150,8 @@ int main(int argc, char **argv)
 
 		if (cumul > 0) {
 			cout << "Bytes received: " << iResult << endl;
+			//cout << recvbuf << endl;
+			image << recvbuf;
 		}
 		else if (cumul == 0)
 			cout << "Connection closed" << endl;
@@ -154,6 +161,7 @@ int main(int argc, char **argv)
 	} while (cumul > 0);
 
 	// cleanup
+	image.close();
 	closesocket(ConnectSocket);
 	WSACleanup();
 
