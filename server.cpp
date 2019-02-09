@@ -144,8 +144,7 @@ int main(void)
 			int i = 0;
 			int length;
 			char * sendbuf;
-
-			printf("HELLO");
+			
 			// length of img
 			image.seekg(0, image.end);
 			length = image.tellg();
@@ -168,7 +167,6 @@ int main(void)
 				return -1;
 			}
 			cout << "Bytes sent: " << iSendResult << endl;
-			cout << sendbuf << endl;
 		}
 		
 		else if (cumul == 0)

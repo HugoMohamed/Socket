@@ -37,14 +37,14 @@ int main(int argc, char **argv)
 	char recvbuf[10000];
 	int iResult;
 	int recvbuflen = DEFAULT_BUFLEN;
-	ofstream image("receivedImage.png", fstream::binary);
+	
 
 	// Validate the parameters
 	if (argc != 2) {
 		cout << "usage: " << argv[0] <<  " image.png" << endl;
         return -1;
 	}
-
+	ofstream image("receivedImage.png", fstream::binary);
 	sendbuf = argv[1];
 
 	// Initialize Winsock
@@ -150,14 +150,13 @@ int main(int argc, char **argv)
 
 		if (cumul > 0) {
 			cout << "Bytes received: " << iResult << endl;
-			//cout << recvbuf << endl;
-			image << recvbuf;
 		}
 		else if (cumul == 0)
 			cout << "Connection closed" << endl;
 		else
 			cout << "recv failed with error: " << WSAGetLastError() << endl;
 
+		image.write(recvbuf, DEFAULT_BUFLEN);
 	} while (cumul > 0);
 
 	// cleanup
