@@ -1,6 +1,7 @@
 /********************
 *                   *
 *	Hugo MOHAMED	*
+*	MOHH01019908	*
 *					*
 ********************/
 
@@ -124,6 +125,7 @@ int main(int argc, char **argv)
 
 	bool done;
 	int i, cumul;
+	int x = 0;
 
 	// Receive until the peer shuts down the connection
 	do {
@@ -136,6 +138,7 @@ int main(int argc, char **argv)
 				&recvbuf[0],
 				recvbuflen,    // not the number of bytes to be received !!!
 				0);
+			x += iResult;
 			image.write(recvbuf, iResult);
 			if (iResult != 0) { // if connection has not been shutdown (some bytes received)
 				for (i = cumul; i < cumul + iResult; i++) {
@@ -149,14 +152,16 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if (cumul > 0) {
+		if (cumul > 0)
 			cout << "Bytes received: " << iResult << endl;
-		}
+			
 		else if (cumul == 0)
 			cout << "Connection closed" << endl;
 		else
 			cout << "recv failed with error: " << WSAGetLastError() << endl;
 	} while (cumul > 0);
+
+	cout << "Total bytes received: " << x << endl;
 	// cleanup
 	image.close();
 	closesocket(ConnectSocket);

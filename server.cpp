@@ -1,6 +1,7 @@
 /********************
 *                   *
 *	Hugo MOHAMED	*
+*	MOHH01019908	*
 *					*
 ********************/
 
@@ -141,6 +142,13 @@ int main(void)
 		{
 			cout << "Bytes received: " << cumul << endl;
 			ifstream image(recvbuf, ifstream::binary);
+			if (!image.is_open())
+			{
+				cout << "Fichier \"" << recvbuf << "\" introuvable\n" << endl;
+				closesocket(ClientSocket);
+				WSACleanup();
+				return -1;
+			}
 			int i = 0;
 			int length;
 			char * sendbuf;
@@ -165,16 +173,14 @@ int main(void)
 			while(x < length)
 			{
 				char tmpSendBuf[DEFAULT_BUFLEN];
+				int count = 0;
 				// Subtracting the 512 first char of sendbuf in tmpSendBuf
-				for (int j = 0; j < DEFAULT_BUFLEN; j++)
+				for (int j = 0; j < DEFAULT_BUFLEN && x + j < length; j++)
 				{
 					tmpSendBuf[j] = sendbuf[x + j];
+					count++;
 				}
-				/*for (int n = 0; n < length - DEFAULT_BUFLEN +1; n++)
-				{
-					sendbuf[i] = sendbuf[DEFAULT_BUFLEN + i];
-				}*/
-				iSendResult = send(ClientSocket, tmpSendBuf, DEFAULT_BUFLEN, 0);
+				iSendResult = send(ClientSocket, tmpSendBuf, count, 0);
 				cout << "Bytes sent: " << iSendResult << endl;
 
 				x += iSendResult;
@@ -186,7 +192,7 @@ int main(void)
 				WSACleanup();
 				return -1;
 			}
-			cout << "Bytes sent: " << x << endl;
+			cout << "Total bytes sent: " << x << endl;
 		}
 		
 		else if (cumul == 0)
