@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 		hints;
 	char *sendbuf;
 
-	char recvbuf[10000];
+	char recvbuf[DEFAULT_BUFLEN];
 	int iResult;
 	int recvbuflen = DEFAULT_BUFLEN;
 	
@@ -133,9 +133,10 @@ int main(int argc, char **argv)
 		cumul = 0;
 		while (!done) {
 			iResult = recv(ConnectSocket,
-				&recvbuf[cumul],
+				&recvbuf[0],
 				recvbuflen,    // not the number of bytes to be received !!!
 				0);
+			image.write(recvbuf, iResult);
 			if (iResult != 0) { // if connection has not been shutdown (some bytes received)
 				for (i = cumul; i < cumul + iResult; i++) {
 					if (recvbuf[i] == '\0')
@@ -155,10 +156,7 @@ int main(int argc, char **argv)
 			cout << "Connection closed" << endl;
 		else
 			cout << "recv failed with error: " << WSAGetLastError() << endl;
-
-		image.write(recvbuf, DEFAULT_BUFLEN);
 	} while (cumul > 0);
-
 	// cleanup
 	image.close();
 	closesocket(ConnectSocket);

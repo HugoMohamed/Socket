@@ -37,8 +37,8 @@ int main(void)
 	struct addrinfo *result = NULL;
 	struct addrinfo hints;
 
-	int iSendResult;
-	char recvbuf[10000];
+	int iSendResult = 0;
+	char recvbuf[DEFAULT_BUFLEN];
 	int recvbuflen = DEFAULT_BUFLEN;
 
 	// Initialize Winsock
@@ -140,12 +140,12 @@ int main(void)
 		if (cumul > 0)
 		{
 			cout << "Bytes received: " << cumul << endl;
-			ifstream image("image.png", ifstream::binary);
+			ifstream image(recvbuf, ifstream::binary);
 			int i = 0;
 			int length;
 			char * sendbuf;
 			
-			// length of img
+			// length of image
 			image.seekg(0, image.end);
 			length = image.tellg();
 			image.seekg(0, image.beg);
@@ -159,14 +159,34 @@ int main(void)
 			}
 			// Echo the content of "recvbuf" back to the sender
 			// Therefore, we have to send "cumul" bytes 
-			iSendResult = send(ClientSocket, sendbuf, length+1, 0);
+			//iSendResult = send(ClientSocket, sendbuf, length+1, 0);
+
+			int x = 0;
+			while(x < length)
+			{
+				char tmpSendBuf[DEFAULT_BUFLEN];
+				// Subtracting the 512 first char of sendbuf in tmpSendBuf
+				for (int j = 0; j < DEFAULT_BUFLEN; j++)
+				{
+					tmpSendBuf[j] = sendbuf[x + j];
+				}
+				/*for (int n = 0; n < length - DEFAULT_BUFLEN +1; n++)
+				{
+					sendbuf[i] = sendbuf[DEFAULT_BUFLEN + i];
+				}*/
+				iSendResult = send(ClientSocket, tmpSendBuf, DEFAULT_BUFLEN, 0);
+				cout << "Bytes sent: " << iSendResult << endl;
+
+				x += iSendResult;
+			}
+
 			if (iSendResult == SOCKET_ERROR) {
 				cout << "send failed with error: " << WSAGetLastError() << endl;
 				closesocket(ClientSocket);
 				WSACleanup();
 				return -1;
 			}
-			cout << "Bytes sent: " << iSendResult << endl;
+			cout << "Bytes sent: " << x << endl;
 		}
 		
 		else if (cumul == 0)
